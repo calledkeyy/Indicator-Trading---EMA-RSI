@@ -1,0 +1,52 @@
+//@version=5
+strategy(title="EMA x RSI", overlay=true, initial_capital = 10000)
+
+
+//// input controls
+
+EMA_L = input.int (title = "EMA-Long01", defval = 21, minval = 1, maxval = 200, step =1)
+EMA_L2 = input.int (title = "EMA-Long02", defval = 34, minval = 1, maxval = 200, step =1)
+EMA_S = input.int (title = "EMA-Short01", defval = 90, minval = 1, maxval = 200, step =1)
+EMA_S2 = input.int (title = "EMA-Short02", defval = 50, minval = 1, maxval = 200, step =1)
+RSI1 = input.int (title = "RSI", defval = 6, minval = 1, maxval = 20 , step = 1)
+
+//// overlay
+
+RSI = ta.rsi(close, RSI1)
+
+shortest = ta.ema(close, 21)
+short = ta.ema(close, 34)
+longer = ta.ema(close, 90)
+longest = ta.ema(close, 50)
+
+plot(shortest, color = color.red)
+plot(short, color = color.orange)
+plot(longer, color = color.aqua)
+plot(longest, color = color.yellow)
+
+plot(close)
+
+//// trading indicators
+
+EMA1 = ta.ema (close,EMA_L)
+EMA2 = ta.ema (close,EMA_L2)
+EMA3 = ta.ema (close, EMA_S)
+EMA4 = ta.ema (close, EMA_S2)
+
+
+buy = ta.crossover(EMA1, EMA2) and RSI > 1 and RSI <70
+sell = ta.crossunder(EMA1, EMA2) and RSI > 60 and RSI <100
+
+buyexit = ta.crossunder(EMA3, EMA4)
+sellexit = ta.crossover(EMA3, EMA4)
+
+/////strategy
+
+strategy.entry ("long", strategy.long, when = buy, comment = "BUY")
+strategy.entry ("short", strategy.short, when = sell, comment = "SELL")
+
+
+/////market exit
+
+strategy.close ("long", when = buyexit, comment = "CLOSE BUY")
+strategy.close ("short",  when = sellexit, comment = "CLOSE SELL")
